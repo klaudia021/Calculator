@@ -2,6 +2,10 @@
 using System.Text.RegularExpressions;
 using CalculatorLibrary;
 
+const int CalculatorAppMenu = 1;
+const int ListHistoryMenu = 2;
+const int DeleteHistoryMenu = 3;
+
 bool endApp = false;
 // Display title as the C# console calculator app.
 Console.WriteLine("Console Calculator in C#\r");
@@ -10,6 +14,47 @@ Console.WriteLine("------------------------\n");
 Calculator calculator = new Calculator();
 
 while (!endApp)
+{
+    ListMenu();
+
+    string? menuInput = "";
+    Console.Write("Type a menu number, and then press Enter: ");
+    menuInput = Console.ReadLine();
+
+    double chosenMenu = 0;
+    while (!double.TryParse(menuInput, out chosenMenu))
+    {
+        Console.Write("This is not valid input. Please enter a numeric value: ");
+        menuInput = Console.ReadLine();
+    }
+
+    switch (chosenMenu)
+    {
+        case CalculatorAppMenu:
+            CalculatorApp();
+            break;
+        case ListHistoryMenu:
+            calculator.ListHistory();
+            break;
+        case DeleteHistoryMenu:
+            calculator.ClearList();
+            break;
+        default:
+            break;
+    }
+
+    Console.WriteLine("\n"); // Friendly linespacing. 
+
+    // Wait for the user to respond before closing.
+    Console.Write("Press 'n' and Enter to close the app, or press any other key and Enter to continue: ");
+    if (Console.ReadLine() == "n") endApp = true;
+
+    Console.WriteLine("\n"); // Friendly linespacing. 
+}
+
+calculator.Finish();
+
+void CalculatorApp()
 {
     // Declare variables and set to empty.
     // Use Nullable types (with ?) to match type of System.Console.ReadLine
@@ -45,12 +90,20 @@ while (!endApp)
     Console.WriteLine("\ts - Subtract");
     Console.WriteLine("\tm - Multiply");
     Console.WriteLine("\td - Divide");
+    Console.WriteLine("\te - Exponentiation");
+    Console.WriteLine();
+    Console.WriteLine("First number is used:");
+    Console.WriteLine("\tq - Square root");
+    Console.WriteLine("\ti - Sine(°)");
+    Console.WriteLine("\to - Cosine(°)");
+    Console.WriteLine("\tt - Tangent(°)");
+    Console.WriteLine("\tc - Cotangent(°)");
     Console.Write("Your option? ");
 
     string? op = Console.ReadLine();
 
     // Validate input is not null, and matches the pattern
-    if (op == null || ! Regex.IsMatch(op, "[a|s|m|d]"))
+    if (op == null || ! Regex.IsMatch(op, "[a|s|m|d|q|e|i|o|t|c]"))
     {
         Console.WriteLine("Error: Unrecognized input.");
     }
@@ -71,14 +124,13 @@ while (!endApp)
         }
     }
     Console.WriteLine("------------------------\n");
-
-    // Wait for the user to respond before closing.
-    Console.Write("Press 'n' and Enter to close the app, or press any other key and Enter to continue: ");
-    if (Console.ReadLine() == "n") endApp = true;
-
-    Console.WriteLine("\n"); // Friendly linespacing.
 }
 
-calculator.Finish();
-
-return;
+void ListMenu()
+{
+    Console.WriteLine("------------------------");
+    Console.WriteLine($"{CalculatorAppMenu} - Calculator");
+    Console.WriteLine($"{ListHistoryMenu} - List History");
+    Console.WriteLine($"{DeleteHistoryMenu} - Delete History");
+    Console.WriteLine("------------------------\n");
+}
