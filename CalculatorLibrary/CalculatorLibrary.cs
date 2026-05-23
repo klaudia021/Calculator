@@ -1,11 +1,13 @@
-﻿using System.Diagnostics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace CalculatorLibrary;
 
 public class Calculator
 {
-    JsonWriter writer;
+    private JsonWriter writer;
+
+    private static int TimesUsed = 0;
+
     public Calculator()
     {
         StreamWriter logFile = File.CreateText("calculatorlog.json");
@@ -53,6 +55,9 @@ public class Calculator
             default:
                 break;
         }
+
+        TimesUsed++;
+
         writer.WritePropertyName("Result");
         writer.WriteValue(result);
         writer.WriteEndObject();
@@ -65,5 +70,7 @@ public class Calculator
         writer.WriteEndArray();
         writer.WriteEndObject();
         writer.Close();
+
+        Console.WriteLine($"The calculator was used {TimesUsed} time(s).");
     }
 }
