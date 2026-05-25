@@ -47,8 +47,8 @@ public class CalculatorHistory
     public override string ToString()
     {
         if (Regex.IsMatch(_operationLetter, "[a|s|m|d|e]"))
-            return $"{Id}. - {Number1} {Operation} {Number2} = {Result}";
+            return $"{Id}.: {Number1} {Operation} {Number2} = {Result}";
         
-        return $"{Id}. - {Operation}({Number1}) = {Result}"; 
+        return $"{Id}.: {Operation}({Number1}) = {Result}"; 
     }
 }

@@ -127,7 +127,10 @@ public class Calculator
 
     public void ListHistory()
     {
-        if (History.Count == 0)
+        Console.WriteLine("\nCalculator history:");
+        Console.WriteLine("---------------------");
+
+        if (!HistoryHasEnoughResults(1))
         {
             Console.WriteLine("History is empty!");
         }
@@ -136,11 +139,29 @@ public class Calculator
             foreach (var listItem in History)
                 Console.WriteLine(listItem.ToString());
         }
+
+        Console.WriteLine("---------------------\n");
     }
 
     public void ClearList()
     {
         History.Clear();
         Console.WriteLine("History is cleared!");
+    }
+
+    public CalculatorHistory? GetHistoryByIndex(int index)
+    {
+        if (index < 0 || History.Count - 1 < index)
+            return null;
+        
+        return History[index];
+    }
+
+    public bool HistoryHasEnoughResults(int count)
+    {
+        if (History.Count < count) 
+            return false;
+
+        return true;
     }
 }

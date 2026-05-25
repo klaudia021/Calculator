@@ -1,10 +1,14 @@
 ﻿
 using System.Text.RegularExpressions;
 using CalculatorLibrary;
+using Validation;
 
 const int CalculatorAppMenu = 1;
 const int ListHistoryMenu = 2;
 const int DeleteHistoryMenu = 3;
+
+double? listInput1 = null;
+double? listInput2 = null;
 
 bool endApp = false;
 // Display title as the C# console calculator app.
@@ -35,6 +39,7 @@ while (!endApp)
             break;
         case ListHistoryMenu:
             calculator.ListHistory();
+            PreviousResultMenu();
             break;
         case DeleteHistoryMenu:
             calculator.ClearList();
@@ -57,32 +62,9 @@ calculator.Finish();
 void CalculatorApp()
 {
     // Declare variables and set to empty.
-    // Use Nullable types (with ?) to match type of System.Console.ReadLine
-    string? numInput1 = "";
-    string? numInput2 = "";
     double result = 0;
-
-    // Ask the user to type the first number.
-    Console.Write("Type a number, and then press Enter: ");
-    numInput1 = Console.ReadLine();
-
-    double cleanNum1 = 0;
-    while (!double.TryParse(numInput1, out cleanNum1))
-    {
-        Console.Write("This is not valid input. Please enter a numeric value: ");
-        numInput1 = Console.ReadLine();
-    }
-
-    // Ask the user to type the second number.
-    Console.Write("Type another number, and then press Enter: ");
-    numInput2 = Console.ReadLine();
-
-    double cleanNum2 = 0;
-    while (!double.TryParse(numInput2, out cleanNum2))
-    {
-        Console.Write("This is not valid input. Please enter a numeric value: ");
-        numInput2 = Console.ReadLine();
-    }
+    double cleanNum1 = listInput1 ?? ValidatorService.GetUserInputForDouble("first");
+    double cleanNum2 = listInput2 ?? ValidatorService.GetUserInputForDouble("second");
 
     // Ask the user to choose an operator.
     Console.WriteLine("Choose an operator from the following list:");
@@ -116,7 +98,7 @@ void CalculatorApp()
             {
                 Console.WriteLine("This operation will result in a mathematical error.\n");
             }
-            else Console.WriteLine("Your result: {0:0.##}\n", result);
+            else Console.WriteLine("Your result: {0:0.##########}\n", result);
         }
         catch (Exception e)
         {
@@ -124,6 +106,9 @@ void CalculatorApp()
         }
     }
     Console.WriteLine("------------------------\n");
+
+    listInput1 = null;
+    listInput2 = null;
 }
 
 void ListMenu()
@@ -133,4 +118,78 @@ void ListMenu()
     Console.WriteLine($"{ListHistoryMenu} - List History");
     Console.WriteLine($"{DeleteHistoryMenu} - Delete History");
     Console.WriteLine("------------------------\n");
+}
+
+void PreviousResultMenu()
+{
+    if (!calculator.HistoryHasEnoughResults(1))
+        return;
+
+    string? input = "";
+    
+    Console.Write("Do you want to use previous results from the list? (y/n): ");
+    input = Console.ReadLine();
+
+    if (input != "y")
+    {
+        Console.WriteLine("\nExiting list...");
+        return;
+    }
+    
+    Console.Write("\nHow many previous result do you want to use? (1-2): ");
+    input = Console.ReadLine();
+
+    int numbersCount = ValidatorService.GetValidIntInputValue(input);
+    bool validNumberWasChosen = numbersCount == 1 || numbersCount == 2;
+    bool historyHasNotEnoughResult = numbersCount == 2 && !calculator.HistoryHasEnoughResults(2);
+
+    if (!validNumberWasChosen || historyHasNotEnoughResult)
+    {
+        Console.WriteLine("Input is not valid, or not enough results are available. Exiting list...\n\n");
+        return;
+    }
+
+    UseNumbersFromList(numbersCount);
+}
+
+void UseNumbersFromList(int inputCount)
+{
+    double? num2 = null;
+    
+    calculator.ListHistory();
+    
+    double? num1 = GetHistoryResult("first");
+    
+    if (inputCount == 2)
+        num2 = GetHistoryResult("second");
+
+    listInput1 = num1;
+    listInput2 = num2;
+
+    CalculatorApp();
+}
+
+double GetHistoryResult(string numberCountText)
+{
+    CalculatorHistory? previousResult = null;
+    bool validHistoryChosen = false;
+
+    do
+    { 
+        Console.Write($"Choose the number of the results for the {numberCountText} number: ");
+
+        string? input = Console.ReadLine();
+        int chosenNumber = ValidatorService.GetValidIntInputValue(input);
+
+        previousResult = calculator.GetHistoryByIndex(chosenNumber - 1);
+
+        if (previousResult == null)
+            Console.WriteLine($"\nThere is no result available for index {chosenNumber}");
+        else
+            validHistoryChosen = true;
+
+    } while (!validHistoryChosen);
+    
+
+    return previousResult!.Result;
 }
